@@ -42,5 +42,8 @@ public class CameraBehaviour : MonoBehaviour
             }
             
         }
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
     }
 }
