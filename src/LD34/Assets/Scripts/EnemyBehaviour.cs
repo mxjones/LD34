@@ -27,11 +27,17 @@ public class EnemyBehaviour : MonoBehaviour
     public float StartYPoint;
     public float MaxSpeed;
     public float MaxSizeOnSpawn = 5.0f;
+    public Sprite SheepDown;
+    public Sprite SheepUp;
+    public Sprite SheepLeft;
+    public Sprite SheepRight;
 
 
+    private Direction _direction;
     private Rigidbody _rigidbody;
     private float _timeElapsedSinceLastMeal;
     private float _timeElapsedSinceLastShrunk;
+    private SpriteRenderer _spriteRenderer;
 
     private GameObject _currentTarget;
     private GameObject _closestEnemy;
@@ -40,6 +46,7 @@ public class EnemyBehaviour : MonoBehaviour
     void Start()
     {
         Player = GameObject.FindGameObjectWithTag("Player");
+        _spriteRenderer = GetComponent<SpriteRenderer>();
         var spawnX = Random.Range(-8, 19);
         var spawnY = Random.Range(-6, 22);
 
@@ -99,7 +106,7 @@ public class EnemyBehaviour : MonoBehaviour
         Vector2 movement = new Vector2();
         if (transform.position.x >= FinalXPoint)
         {
-            movement.x = -(Speed*Time.deltaTime) * 10;
+            movement.x = -(Speed * Time.deltaTime) * 10;
         }
 
         // As far Left I can go
@@ -153,18 +160,66 @@ public class EnemyBehaviour : MonoBehaviour
                 vertical = -vertical;
         }
     }
-//
 
+    // This doesn't seem to work
+    // Them sheep be super fast.
     void ClampTheSpeed()
     {
         _rigidbody.velocity = Vector2.ClampMagnitude(_rigidbody.velocity, MaxSpeed);
     }
 
+    void SetDirection(Vector3 direction)
+    {
+        /* if (Math.Abs(horizontalMovement) > 0.1)
+            _direction = horizontalMovement > 0 ? Direction.Right : Direction.Left;
+
+        if (Math.Abs(verticalMovement) > 0.1)
+            _direction = verticalMovement > 0 ? Direction.Up : Direction.Down;*/
+
+        if ((Math.Abs(direction.x) > 0.1))
+        {
+            if (direction.x > 0)
+                _direction = Direction.Right;
+            else
+                _direction = Direction.Left;
+        }
+
+        if ((Math.Abs(direction.y) > 0.1))
+        {
+            if (direction.y > 0)
+                _direction = Direction.Up;
+            else
+                _direction = Direction.Down;
+        }
+    }
+
+    private void ChangeSprite()
+    {
+        switch (_direction)
+        {
+            case Direction.Down:
+                _spriteRenderer.sprite = SheepDown;
+                break;
+            case Direction.Left:
+                _spriteRenderer.sprite = SheepLeft;
+                break;
+            case Direction.Right:
+                _spriteRenderer.sprite = SheepRight;
+                break;
+            case Direction.Up:
+                _spriteRenderer.sprite = SheepUp;
+                break;
+
+        }
+    }
+
+
     // TODO: Does this need to be so long and horrible? Should refactor.
+    // For anyone reading this, most of what I tried didn't work in regards to moving the enemy...this sort of works but it is still awful
     void Move()
     {
         _currentTarget = null;
-
+        Vector3 direction;
 
         // Check if player is closer than closest enemy
         //        if (Player.transform.position.x - transform.position.x < _closestEnemy.transform.position.x - transform.position.x
@@ -179,10 +234,14 @@ public class EnemyBehaviour : MonoBehaviour
                 {
                     // Player is smaller, GET SOME
                     _currentTarget = Player;
-//                    var movement = (_currentTarget.transform.position - transform.position) * Speed * Time.deltaTime;
-//                    _rigidbody.velocity = movement;
-//                    var directionToMove = _currentTarget.transform.position - transform.position; 
+                    //                    var movement = (_currentTarget.transform.position - transform.position) * Speed * Time.deltaTime;
+                    //                    _rigidbody.velocity = movement;
+//                    var directionToMove = (_currentTarget.transform.position - transform.position).normalized;
+//                    direction = directionToMove;
 //                    transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+
+                    
+                    direction = _currentTarget.transform.position - transform.position.normalized;
                     _rigidbody.AddForce((_currentTarget.transform.position - transform.position) * (Speed / 2) * Time.smoothDeltaTime);
 
                     //_rigidbody.AddForce(movement);
@@ -194,11 +253,15 @@ public class EnemyBehaviour : MonoBehaviour
                     Debug.Log("Why are you not running");
 
                     _currentTarget = Player;
-//                    var movement = (-_currentTarget.transform.position - transform.position) * Speed * Time.deltaTime;
-//
-//                    _rigidbody.velocity = movement;
-//                    var directionToMove = _currentTarget.transform.position - transform.position;
-//                    transform.position = Vector2.MoveTowards(transform.position, -directionToMove, Speed * Time.deltaTime);
+                    //                    var movement = (-_currentTarget.transform.position - transform.position) * Speed * Time.deltaTime;
+                    //
+                    //                    _rigidbody.velocity = movement;
+                    //var directionToMove = (_currentTarget.transform.position - transform.position).normalized;
+                    //direction = -directionToMove;
+                    //transform.position = Vector2.MoveTowards(transform.position, -directionToMove, Speed * Time.deltaTime);
+                    
+                    
+                    direction = _currentTarget.transform.position - transform.position.normalized;
                     _rigidbody.AddForce(-(_currentTarget.transform.position - transform.position) * (Speed / 2) * Time.smoothDeltaTime);
 
                     //_rigidbody.AddForce(movement);
@@ -207,12 +270,16 @@ public class EnemyBehaviour : MonoBehaviour
                 {
                     // Same size, lets get some dinner.
                     _currentTarget = _closestPickUp;
-//                    var movement = (_currentTarget.transform.position - transform.position) * Speed * Time.deltaTime;
-//                    _rigidbody.velocity = movement;
-//                    
+                    //                    var movement = (_currentTarget.transform.position - transform.position) * Speed * Time.deltaTime;
+                    //                    _rigidbody.velocity = movement;
+                    //                                        direction = _currentTarget.transform.position - transform.position.normalized;
+
+                    //var directionToMove = (_currentTarget.transform.position - transform.position).normalized;
+                    //direction = directionToMove;
+                    //transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                    direction = _currentTarget.transform.position - transform.position.normalized;
                     _rigidbody.AddForce((_currentTarget.transform.position - transform.position) * (Speed / 2) * Time.smoothDeltaTime);
-
-
+                    
 
                     // _rigidbody.velocity = movement;
                     //_rigidbody.AddForce(movement);
@@ -222,12 +289,15 @@ public class EnemyBehaviour : MonoBehaviour
             {
                 // Same size, lets get some dinner.
                 _currentTarget = _closestPickUp;
-//                var movement = (_currentTarget.transform.position - transform.position) * Speed * Time.deltaTime;
-//                _rigidbody.velocity = movement;
-//                var directionToMove = _currentTarget.transform.position - transform.position;
-//                transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                //                var movement = (_currentTarget.transform.position - transform.position) * Speed * Time.deltaTime;
+                //                _rigidbody.velocity = movement;
+                //var directionToMove = (_currentTarget.transform.position - transform.position).normalized;
+                //direction = directionToMove;
+                //transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                
+                
+                direction = (_currentTarget.transform.position - transform.position).normalized;
                 _rigidbody.AddForce((_currentTarget.transform.position - transform.position) * (Speed / 2) * Time.smoothDeltaTime);
-
             }
         }
         else
@@ -240,23 +310,28 @@ public class EnemyBehaviour : MonoBehaviour
                 if (_closestEnemy.GetComponent<EnemyBehaviour>().Size < Size)
                 {
                     _currentTarget = _closestEnemy;
-//                    var movement = (_currentTarget.transform.position - transform.position) * (Speed * Time.deltaTime);
-//                    _rigidbody.velocity = movement;
-//                    var directionToMove = _currentTarget.transform.position - transform.position;
-//                    transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                    //                    var movement = (_currentTarget.transform.position - transform.position) * (Speed * Time.deltaTime);
+                    //                    _rigidbody.velocity = movement;
+                    //var directionToMove = (_currentTarget.transform.position - transform.position).normalized;
+                    //direction = directionToMove;
+                    //transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                    
+                    
+                    direction = _currentTarget.transform.position - transform.position.normalized;
                     _rigidbody.AddForce((_currentTarget.transform.position - transform.position) * (Speed / 2) * Time.smoothDeltaTime);
-
-
 
                 }
                 else if (_closestEnemy.GetComponent<EnemyBehaviour>().Size > Size)
                 {
                     _currentTarget = _closestEnemy;
-//                    var movement = (-_currentTarget.transform.position - transform.position) * (Speed * Time.deltaTime);
-//                    _rigidbody.velocity = movement;
+                    //                    var movement = (-_currentTarget.transform.position - transform.position) * (Speed * Time.deltaTime);
+                    //                    _rigidbody.velocity = movement;
 
-//                    var directionToMove = _currentTarget.transform.position - transform.position;
-//                    transform.position = Vector2.MoveTowards(transform.position, -directionToMove, Speed * Time.deltaTime);
+                    //var directionToMove = -(_currentTarget.transform.position - transform.position).normalized;
+                    //direction = directionToMove;
+                    //transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                    
+                    direction = _currentTarget.transform.position - transform.position.normalized;
                     _rigidbody.AddForce(-(_currentTarget.transform.position - transform.position) * (Speed / 2) * Time.smoothDeltaTime);
 
 
@@ -265,10 +340,14 @@ public class EnemyBehaviour : MonoBehaviour
                 else
                 {
                     _currentTarget = _closestPickUp;
-//                    var movement = (_currentTarget.transform.position - transform.position) * (Speed * Time.deltaTime);
-//                    _rigidbody.velocity = movement;
-//                    var directionToMove = _currentTarget.transform.position - transform.position;
-//                    transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                    //                    var movement = (_currentTarget.transform.position - transform.position) * (Speed * Time.deltaTime);
+                    //                    _rigidbody.velocity = movement;
+                    //var directionToMove = (_currentTarget.transform.position - transform.position).normalized;
+                    //direction = directionToMove;
+                    //transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                    
+                    
+                    direction = _currentTarget.transform.position - transform.position.normalized;
                     _rigidbody.AddForce((_currentTarget.transform.position - transform.position) * (Speed / 2) * Time.smoothDeltaTime);
 
 
@@ -280,8 +359,12 @@ public class EnemyBehaviour : MonoBehaviour
                 _currentTarget = _closestPickUp;
                 //var movement = (_currentTarget.transform.position - transform.position) * (Speed * Time.deltaTime);
                 //_rigidbody.velocity = movement;
-//                var directionToMove = _currentTarget.transform.position - transform.position;
-//                transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                //var directionToMove = (_currentTarget.transform.position - transform.position).normalized;
+                //direction = directionToMove;
+                // transform.position = Vector2.MoveTowards(transform.position, directionToMove, Speed * Time.deltaTime);
+                
+                
+                direction = _currentTarget.transform.position - transform.position.normalized;
                 _rigidbody.AddForce((_currentTarget.transform.position - transform.position) * (Speed / 2) * Time.smoothDeltaTime);
             }
         }
@@ -289,6 +372,17 @@ public class EnemyBehaviour : MonoBehaviour
         ClampTheSpeed();
         var movementBoundary = GetBoundaryForce();
         _rigidbody.AddForce(movementBoundary);
+
+        SetDirection(direction);
+        ChangeSprite();
+    }
+
+    public void Reset()
+    {
+        for (int i = 0; i < Size; i++)
+        {
+            Shrink();
+        }
     }
 
     private void Grow()

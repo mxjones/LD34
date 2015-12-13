@@ -8,9 +8,13 @@ public class CameraBehaviour : MonoBehaviour
     public GameObject CameraTarget;
     public Vector3 CameraOffset;
 
+    private AudioSource _audioSource;
+    public bool SoundOn = true;
+
     // Use this for initialization
     void Start()
     {
+        _audioSource = GetComponent<AudioSource>();
     }
 
     void FixedUpdate()
@@ -23,6 +27,20 @@ public class CameraBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        // Eww Eww Eww Eww Eww
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            if (SoundOn)
+            {
+                _audioSource.Stop();
+                SoundOn = false;
+            }
+            else
+            {
+                _audioSource.Play();
+                SoundOn = true;
+            }
+            
+        }
     }
 }

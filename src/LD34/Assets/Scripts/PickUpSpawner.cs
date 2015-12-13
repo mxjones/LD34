@@ -4,7 +4,7 @@ using System.Collections;
 public class PickUpSpawner : MonoBehaviour
 {
     // TODO: Different types of Pick up. Different effects etc.
-    public float SpawnTime = 2.0f;
+    public float SpawnTime = 0.5f;
     public GameObject PickupItem;
     public int MaxPickupItems = 75;
 
